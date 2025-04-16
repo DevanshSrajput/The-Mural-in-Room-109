@@ -23,7 +23,7 @@ The project is built using:
 - **CSS** (12.7%)
 - **JavaScript** (1.7%)
 
-##Deployed link (live link): 
+## Deployed link (live link): 
 ```
 
 ```
