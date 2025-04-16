@@ -52,7 +52,7 @@ To set up the project locally, clone this repository and open the `index.html` f
 
 ---
 
-##Contributing
+## Contributing
 
 Contributions are welcome! Follow these steps to contribute:
 1. Fork the repository.
