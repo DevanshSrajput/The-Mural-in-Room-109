@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diary of the Damned</title>
+  <link rel="stylesheet" href="Style.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Special+Elite&display=swap');
+
+    body {
+      background-image: url('assets/bgimage.jpg');
+      background-size: cover;
+      background-position: center;
+      background-color: #000;
+      color: #bb0000;
+      font-family: 'Special Elite', cursive;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Add a dark overlay to make text more readable */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    /* Override book size to maintain 9:16 ratio */
+    .book {
+      width: 50vh;
+      /* Using vh to ensure it fits on screen */
+      height: 50vh;
+      /* 16:9 ratio */
+      box-shadow: 0 0 20px rgba(139, 0, 0, 0.8);
+      margin: auto;
+    }
+
+    .page {
+      background-color: #1a1a1a;
+      background-image: url('assets/bg.jpg');
+      background-size: cover;
+      aspect-ratio: 16/9;
+    }
+
+    .front.cover,
+    .back.cover {
+      background-color: #240000;
+      background-image: url('https://www.transparenttextures.com/patterns/black-paper.png');
+    }
+
+    h1,
+    h2,
+    h5 {
+      font-family: 'Creepster', cursive;
+      color: #bb0000;
+      text-shadow: 2px 2px 4px #000000;
+    }
+
+    p {
+      color: #790000;
+      font-size: 0.9em;
+      /* Adjusting text size for better fit */
+    }
+
+    b {
+      color: #bb0000;
+    }
+
+    i {
+      color: #560000;
+    }
+
+    /* Blood drip effect */
+    .blood-drips {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .blood-drip {
+      position: absolute;
+      width: 5px;
+      background-color: #bb0000;
+      animation: drip 10s infinite linear;
+      opacity: 0.7;
+      border-radius: 0 0 5px 5px;
+    }
+
+    @keyframes drip {
+      0% {
+        height: 0;
+        top: 0;
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 0.7;
+      }
+
+      80% {
+        height: 100px;
+      }
+
+      100% {
+        top: 100%;
+        height: 0;
+        opacity: 0;
+      }
+    }
+
+    /* Flickering text effect */
+    .flicker {
+      animation: flicker 5s infinite alternate;
+    }
+
+    @keyframes flicker {
+
+      0%,
+      19%,
+      21%,
+      23%,
+      25%,
+      54%,
+      56%,
+      100% {
+        text-shadow: 2px 2px 4px #300;
+        opacity: 1;
+      }
+
+      20%,
+      24%,
+      55% {
+        text-shadow: none;
+        opacity: 0.5;
+      }
+    }
+
+    /* Audio control styles */
+    .audio-control {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+      color: #a00;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid #600;
+    }
+
+    .audio-btn {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #600;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      border-radius: 0px;
+      transition: all 0.3s ease;
+      border: 1px solid #900;
+      cursor: pointer;
+    }
+
+    .audio-btn:hover {
+      background-color: #900;
+    }
+
+    /* Music visualization */
+    .music-viz {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 30px;
+      height: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 100;
+    }
+
+    .viz-bar {
+      width: 4px;
+      background-color: #bb0000;
+      animation: visualize 0.8s infinite alternate;
+    }
+
+    .viz-bar:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .viz-bar:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    .viz-bar:nth-child(4) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes visualize {
+      0% {
+        height: 3px;
+      }
+
+      100% {
+        height: 20px;
+      }
+    }
+
+    /* Ensure images fit properly in the fixed-ratio book */
+    .front img,
+    .back img {
+      max-width: 100%;
+      max-height: 80%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Blood drip container -->
+  <div class="blood-drips"></div>
+
+  <!-- Music visualization -->
+  <div class="music-viz" id="music-viz">
+    <div class="viz-bar"></div>
+    <div class="viz-bar"></div>
+    <div class="viz-bar"></div>
+    <div class="viz-bar"></div>
+  </div>
+
+  <!-- Horror music element -->
+  <audio id="horror-music" preload="auto" loop>
+    <source src="horror.mp3" type="audio/mpeg">
+    <source src="horror.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Audio controls -->
+  <div class="audio-control">
+    <button onclick="toggleMute()" id="mute-btn" class="audio-btn">Mute</button>
+  </div>
+
+  <div class="book" onclick="tryPlayAudio()">
+    <div class="page">
+      <div class="front cover" style="
+            background-image: url('assets/cover.jpg');
+            background-size: cover;
+            background-position: center;
+          ">
+        <h1 class="flicker" style="
+              color: #bb0000;
+              text-shadow: 5px 2px 5px rgb(0, 0, 0);
+            ">
+          Diary of the Damned
+        </h1>
+
+        <p style="
+              color: #800000;
+              text-shadow: 2px 2px 2px rgb(0, 0, 0);
+            ">
+          DO NOT READ FURTHER<br />
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/Page-1.jpg');
+            background-size: cover;
+            background-position: center;">
+        <h2 class="flicker">The Mural in Room 109</h2>
+      </div>
+    </div>
+    <!--2nd page-->
+    <div class="page">
+      <div class="front">
+        <p><b>
+            November 14th<br />
+          </b>
+          <br>
+          I've come to this mountain inn to escape. Just me, my sketchpad, and silence. Room 109 was the only one
+          available. The hallway was oddly dark, carpet faded like dried blood.<br><br>
+
+          The room smelled like wet ink. And on one wall, someone had painted... something.<br><br>
+
+          A mural. Gigantic. Hundreds of screaming, faceless figures — mouths stretched wide, all drawn in thick black
+          strokes<br><br>
+
+          It wasn’t in the photos when I booked the place.<br>
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/Page-2.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+    <!--3rd page-->
+    <div class="page">
+      <div class="front">
+        <p><b>
+            November 15th<br><br>
+          </b>
+          I dreamed of ink. Thick, tar-like ink dripping from the ceiling.
+          <br><br>
+          When I woke, the mural was different. One of the figures now had a faint outline of eyes.
+          <br><br>
+          It wasn’t there yesterday.
+          <br><br>
+          I tried to scrub it off. The paint bled. The wall hissed.
+        </p>
+      </div>
+      <div class="back">
+        <p>
+          <b>November 16th</b><br><br>
+          The skin on my hands is stained with black blotches. No matter how hard I scrub, they stay.<br><br>
+
+          I flipped through my sketchbook. A new drawing had appeared: a distorted version of me, staring at the mural,
+          mouth wide
+          open in silent scream.<br><br>
+
+          I didn’t draw that.<br><br>
+
+          I can’t remember sleeping.
+
+        </p>
+      </div>
+    </div>
+    <!--4th page-->
+    <div class="page">
+      <div class="front">
+        <p>
+          Found a drawer behind the headboard. Inside: a tattered notebook.<br><br>
+          An artist stayed here. Obsessed with ink and something he called “the whispering wall.”<br><br>
+          His last note read:
+          <br><br>
+          <i>“It watches while you sleep. It feeds on faces.”</i><br><br>
+          And then scrawled, again and again: <i>“Don’t let it finish you.”</i><br><br>
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/Page-3.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+    <!--5th page-->
+    <div class="page">
+      <div class="front">
+        <p><br><br>
+          The mural has... shifted again.<br>
+          One of the faces now looks like me.<br>
+          And I swear I saw it blink.<br>
+          I threw a sheet over the wall. At night, I heard breathing beneath the fabric.<br>
+          When I pulled it off this morning — the mural was dripping. And my nose was bleeding.<br>
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/Page-4.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+    <!--6th page-->
+    <div class="page">
+      <div class="front">
+        I looked in the mirror.<br><br>
+
+        My reflection smiled before I did.<br><br>
+
+        Behind me, the mural. And behind the mural — something moving, rippling like fluid.<br><br>
+        I packed to leave. The door knob came off in my hand.<br><br>
+        The hallway beyond was just... more Room 109. Infinite.<br><br>
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/Page-5.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+    <!--7th page-->
+    <div class="page">
+      <div class="front">
+        <p class="flicker">
+          I don’t know what time it is.<br>
+          The sun hasn’t risen in three days.<br>
+          The mural takes up two walls now. The figures are reaching outward.<br>
+          Their hands are long, stretching across the wallpaper like veins.<br>
+          One of them is holding my bracelet.<br>
+          I haven’t worn it since yesterday.<br>
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/Page-6.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+
+    <div class="page">
+      <div class="front">
+        <p>
+          I can’t speak. My lips are fused with dry ink.<br>
+          It crusts at the corners of my mouth like dried blood.<br>
+          When I sleep — or pass out, I don’t know anymore — I hear whispering from inside the walls:<br>
+          <i>“You belong here now.”</i><br>
+          My face on the mural is smiling.<br>
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/page-7.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+    <div class="page">
+      <div class="front">
+        <p class="flicker">
+          There are no more blank pages in my sketchbook.<br>
+          Each one has been filled overnight — portraits of the screaming souls from the mural.<br>
+          I recognize them now.<br>
+          They were all guests.<br>
+          They were all Room 109.<br>
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/Page-8.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+    <div class="page">
+      <div class="front">
+        <p class="flicker">
+          I heard the receptionist outside the room.<br>
+          <i>“…Yes, Room 109. It has a lovely mural. Very expressive.”</i><br>
+          A key turned. The door creaked open.<br>
+          A shadow stepped in, humming. A sketchbook in her hand.<br>
+          The mural behind me rippled in anticipation.<br>
+          It needs another stroke. Another face.<br>
+
+        </p>
+      </div>
+      <div class="back" style="background-image: url('assets/Page-9.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+    <div class="page">
+      <div class="front">
+        <p class="flicker">
+          You found this diary beneath the floorboards of Room 109.<br>
+          The ink hasn't dried.<br>
+          One last page is blank.<br>
+          It’s waiting for your face.<br>
+        </p>
+      </div>
+      <div class="back cover" style="background-image: url('assets/Page-10.jpg');
+            background-size: cover;
+            background-position: center;">
+      </div>
+    </div>
+  </div>
+  <script src="Script.js"></script>
+
+  <!-- Script to manage continuous audio playback -->
+  <script>
+    // Enhanced audio functionality
+    let audioPlaying = false;
+    const horrorMusic = document.getElementById('horror-music');
+    const muteBtn = document.getElementById('mute-btn');
+    const musicViz = document.getElementById('music-viz');
+
+    // Function to try playing music
+    function tryPlayAudio() {
+      if (!audioPlaying) {
+        horrorMusic.play().then(() => {
+          audioPlaying = true;
+          musicViz.style.display = 'flex';
+        }).catch(error => {
+          console.log("Audio playback failed on click:", error);
+        });
+      }
+    }
+
+    // Add event listeners to try playing audio on various user interactions
+    document.addEventListener('click', tryPlayAudio);
+    document.addEventListener('keydown', tryPlayAudio);
+
+    // Function to continue playing music from index page
+    window.addEventListener('DOMContentLoaded', function () {
+      // Set default volume
+      horrorMusic.volume = 0.6;
+
+      // Hide visualization until music plays
+      musicViz.style.display = 'none';
+
+      // Check if music was playing on the previous page
+      const musicTime = sessionStorage.getItem('musicTime');
+      const musicMuted = sessionStorage.getItem('musicMuted');
+
+      // Set the correct mute state
+      if (musicMuted === 'true') {
+        horrorMusic.muted = true;
+        muteBtn.textContent = 'Unmute';
+      } else {
+        horrorMusic.muted = false;
+        muteBtn.textContent = 'Mute';
+      }
+
+      // Set the correct time position
+      if (musicTime) {
+        horrorMusic.currentTime = parseFloat(musicTime);
+      }
+
+      // Try to autoplay (may be blocked by browser)
+      horrorMusic.play().then(() => {
+        audioPlaying = true;
+        musicViz.style.display = 'flex';
+      }).catch(error => {
+        console.log("Autoplay failed, waiting for user interaction:", error);
+        // Music will play on first user interaction
+      });
+
+      // Update session storage while navigating the book
+      setInterval(function () {
+        if (audioPlaying) {
+          sessionStorage.setItem('musicTime', horrorMusic.currentTime);
+        }
+      }, 1000); // Update every second
+
+      // Create blood drips
+      createBloodDrips();
+    });
+
+    function toggleMute() {
+      const horrorMusic = document.getElementById('horror-music');
+      const muteBtn = document.getElementById('mute-btn');
+
+      if (horrorMusic.muted) {
+        horrorMusic.muted = false;
+        muteBtn.textContent = "Mute";
+      } else {
+        horrorMusic.muted = true;
+        muteBtn.textContent = "Unmute";
+      }
+
+      // Store mute state
+      sessionStorage.setItem('musicMuted', horrorMusic.muted);
+
+      // Try to play if not already playing
+      if (!audioPlaying) {
+        tryPlayAudio();
+      }
+    }
+
+    // Create blood drip effects
+    function createBloodDrips() {
+      const container = document.querySelector('.blood-drips');
+      const windowWidth = window.innerWidth;
+
+      for (let i = 0; i < 15; i++) {
+        const drip = document.createElement('div');
+        drip.className = 'blood-drip';
+        drip.style.left = Math.random() * windowWidth + 'px';
+        drip.style.animationDelay = Math.random() * 5 + 's';
+        drip.style.height = Math.random() * 150 + 50 + 'px';
+        container.appendChild(drip);
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages of Dread</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Times New Roman', Times, serif;
+      background-color: #000;
+      color: #a00;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZGFyayUyMHRleHR1cmV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=2000&q=60');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      text-align: center;
+      z-index: 2;
+      max-width: 800px;
+      padding: 2rem;
+      border: 2px solid #600;
+      background-color: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 20px rgba(170, 0, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 10px #a00;
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 2px;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #600;
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.1rem;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+      margin: 10px;
+      border: 1px solid #900;
+    }
+
+    .btn:hover {
+      background-color: #900;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(170, 0, 0, 0.8);
+    }
+
+    .blood-drip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-image: url('https://www.transparentpng.com/thumb/blood/blood-splatter-transparent-background-5.png');
+      background-size: contain;
+      z-index: 3;
+    }
+
+    #consent-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .modal-content {
+      background-color: #111;
+      padding: 2rem;
+      border: 2px solid #600;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(170, 0, 0, 0.7);
+    }
+
+    .flicker {
+      animation: flicker 4s infinite;
+    }
+
+    @keyframes flicker {
+      0%,
+      19.999%,
+      22%,
+      62.999%,
+      64%,
+      64.999%,
+      70%,
+      100% {
+        opacity: 1;
+      }
+
+      20%,
+      21.999%,
+      63%,
+      63.999%,
+      65%,
+      69.999% {
+        opacity: 0.5;
+      }
+    }
+    
+    .audio-control {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+      color: #a00;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid #600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="blood-drip"></div>
+
+  <!-- Horror music element -->
+  <audio id="horror-music" preload="auto" loop>
+    <source src="horror.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  
+  <!-- Audio controls -->
+  <div class="audio-control">
+    <button onclick="toggleMute()" id="mute-btn" class="btn" style="padding: 5px 10px; font-size: 0.9rem;">Mute</button>
+  </div>
+
+  <div id="consent-modal">
+    <div class="modal-content">
+      <h2 class="flicker">WARNING</h2>
+      <p>You are about to enter a realm of horror and dread, crafted from your nightmares.</p>
+      <p>This experience contains disturbing imagery and themes that may not be suitable for all viewers.</p>
+      <p>Are you brave enough to continue?</p>
+      <button class="btn" onclick="grantConsent()">I DARE TO ENTER</button>
+      <button class="btn" onclick="window.close()">ESCAPE WHILE YOU CAN</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1 class="flicker">Pages of Dread</h1>
+    <p>Turn the pages if you dare. Each flip reveals a new nightmare, each image a gateway to unimaginable horror. What
+      lurks in the shadows of these cursed pages may haunt your dreams forever.</p>
+    <a href="book.html" class="btn" onclick="storeAudioState()">OPEN THE CURSED BOOK</a>
+  </div>
+
+  <script>
+    // Try to play the audio as soon as the page loads
+    window.addEventListener('DOMContentLoaded', function() {
+      const horrorMusic = document.getElementById('horror-music');
+      horrorMusic.volume = 0.6; // Set volume to 60%
+      
+      // Check if we're returning from book.html
+      const musicTime = sessionStorage.getItem('musicTime');
+      const musicMuted = sessionStorage.getItem('musicMuted');
+      
+      // Apply saved muted state if it exists
+      if (musicMuted === 'true') {
+        horrorMusic.muted = true;
+        document.getElementById('mute-btn').textContent = 'Unmute';
+      }
+      
+      // Apply saved time position if it exists
+      if (musicTime) {
+        horrorMusic.currentTime = parseFloat(musicTime);
+      }
+      
+      // Try to play the music automatically
+      horrorMusic.play().catch(error => {
+        console.log("Autoplay failed, will try again after user interaction:", error);
+      });
+    });
+    
+    function toggleMute() {
+      const horrorMusic = document.getElementById('horror-music');
+      const muteBtn = document.getElementById('mute-btn');
+      
+      if (horrorMusic.muted) {
+        horrorMusic.muted = false;
+        muteBtn.textContent = "Mute";
+      } else {
+        horrorMusic.muted = true;
+        muteBtn.textContent = "Unmute";
+      }
+      
+      // Store the mute state in session storage
+      sessionStorage.setItem('musicMuted', horrorMusic.muted);
+    }
+
+    function grantConsent() {
+      document.getElementById('consent-modal').style.display = 'none';
+
+      // Play background horror music when user enters (fallback if autoplay failed)
+      const horrorMusic = document.getElementById('horror-music');
+      
+      // If the music isn't already playing, try to play it now
+      if (horrorMusic.paused) {
+        horrorMusic.play().catch(error => {
+          console.log("Audio playback failed:", error);
+        });
+      }
+    }
+    
+    function storeAudioState() {
+      const horrorMusic = document.getElementById('horror-music');
+      
+      // Store the current time position and muted state
+      sessionStorage.setItem('musicTime', horrorMusic.currentTime);
+      sessionStorage.setItem('musicMuted', horrorMusic.muted);
+    }
+
+    // Add creepy cursor
+    const cursor = document.createElement('div');
+    cursor.style.position = 'fixed';
+    cursor.style.width = '30px';
+    cursor.style.height = '30px';
+    cursor.style.backgroundImage = "url('https://www.transparentpng.com/thumb/blood/small-blood-splatter-png-6.png')";
+    cursor.style.backgroundSize = 'cover';
+    cursor.style.pointerEvents = 'none';
+    cursor.style.zIndex = '9999';
+    document.body.appendChild(cursor);
+
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.pageX + 'px';
+      cursor.style.top = e.pageY + 'px';
+    });
+  </script>
+</body>
+
+</html>
